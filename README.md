@@ -9,7 +9,7 @@ they've produced a docker image containing the pipeline:
 http://r3lab.uni.lu/web/imp/
 
 I'm not going to use docker (not certain our verion of Linux is up to running it correctly), but will follow their pipeline.  
-Fortunantly it is almost identical to what I've already done, with the exception of making a de-novo MT transcriptome first and using this to scaffold the MG assembly (though I do have slight reservations about doing the assembly this way).
+Fortunantly it is almost identical to what I've already done, with the exception of making a de-novo MT transcriptome first and using this to scaffold the MG assembly (though I do have slight reservations about doing the assembly this way). 
 
 Details at the bottom of this and the MG pipeline  
 
