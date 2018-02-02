@@ -47,7 +47,8 @@ for FR in $PROJECT_FOLDER/data/trimmed/*_1.fq.gz.trimmed.fq.gz; do
   $FR \
   $RR \
   k=31 \
-  hdist=1
+  hdist=1 \
+  t=4
 done
 ```
 
@@ -101,7 +102,7 @@ done
 ```
 
 ## Assembly
-metaspades and megahit are two decent options
+There are less assemblers dedicated to MT than MG data - megahit can be used with a small tweek to prevent bubble merger
 
 #### metaspades
 Metaspades can only run on paired reads (no option to use single and/or merged pairs, or multiple libraries)
@@ -119,10 +120,13 @@ done
 ```
 
 #### megahit
+
 Several options are recommended for soil samples  
 --k-min=27 (or higher)  
 --kmin-1pass  
 --k-min 27 --k-step 10 --k-max 87 (127)  
+--bubble-level 0 # metatranscriptomic setting
+
 ```shell
 # using pre-merged reads
 for FR in $PROJECT_FOLDER/data/merged/*_1.unmerged.fq.gz; do
@@ -134,6 +138,7 @@ for FR in $PROJECT_FOLDER/data/merged/*_1.unmerged.fq.gz; do
   $PREFIX \
   -r $MR,$FR,$RR\
   -k-min=27 --k-step 10 --k-max 127
+  --bubble-level 0
 done
 ```
 
@@ -148,6 +153,7 @@ for FR in $PROJECT_FOLDER/data/corrected/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz.
   $PREFIX \
  -1 $FR -2 $RR -r $MR \
  -k-min=27 --k-step 10 --k-max 127
+ --bubble-level 0
 done
 ```   
 
