@@ -1,6 +1,17 @@
 # Metatranscriptomics_pipeline
 
-The preprocessing steps are similar to shotgun-metagenomics, with the addition of rRNA depletion
+The preprocessing steps are similar to shotgun-metagenomics, with the addition of rRNA depletion...
+
+Slight change of plan, I'm going to implement a combined metatranscriptomic (MT) and metagenomic (MG) pipeline as per:
+https://genomebiology.biomedcentral.com/articles/10.1186/s13059-016-1116-8#MOESM1
+
+they've produced a docker image containing the pipeline:
+http://r3lab.uni.lu/web/imp/
+
+I'm not going to use docker (not certain our verion of Linux is up to running it correctly), but will follow their pipeline.  
+Fortunantly it is almost identical to what I've already done, with the exception of making a de-novo MT transcriptome first and using this to scaffold the MG assembly (though I do have slight reservations about doing the assembly this way).
+
+Details at the bottom of this and the MG pipeline  
 
 ## Preprocessing
 The workflow should include at the least adapter trimming and filtering for phix/contamination. Normalisation, error correction and merging are dependent on the data and/or the assebley pipeline. Trimmomatic can also trim for quality if the data is of poor quality.
@@ -161,6 +172,7 @@ done
 Metakallisto/kracken/centrifuge?
 
 ### Binning
-
-
 #### metakallisto
+
+
+## 
