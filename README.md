@@ -46,15 +46,11 @@ for FR in $PROJECT_FOLDER/data/trimmed/*_1.fq.gz.trimmed.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
   $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c MEGAFILT \
   $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/adapters/truseq.fa \
-  $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/contaminants/phix.fa \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/contaminants/phix_174.fa \
   $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/contaminants/ribokmers.fa.gz \
   $PROJECT_FOLDER/data/filtered \
   $FR \
-  $RR \
-  TRIML='ktrim=l k=23 mink=11 hdist=1 tpe tbo t=4' \
-  TRIMR='ktrim=r k=23 mink=11 hdist=1 tpe tbo t=4' \
-  PHIX='k=31 hdist=1 t=4'
-  RRNA='k=31 t=4'
+  $RR
 done  
 ```
 
