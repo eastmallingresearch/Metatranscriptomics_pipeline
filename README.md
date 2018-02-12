@@ -62,6 +62,8 @@ for FR in $PROJECT_FOLDER/data/trimmed/*_1.fq.gz.trimmed.fq.gz; do
   t=4
 done
 ```
+Should remove rRNA as well - could use BBduc or possibly sortmerna. I'll run some test to see which is faster/less errors
+
 
 #### Human contaminant removal (BBMap)
 ```shell
