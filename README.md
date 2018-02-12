@@ -34,43 +34,36 @@ mkdir $PROJECT_FOLDER/data/corrected
 mkdir $PROJECT_FOLDER/data/merged
 ```
 
+### Adapter removal/quality filtering and contaminant filtering
+BBTools has good options for going all of this
+Adapter removal, removal of phix and rrna could be merged using the PIPELINE, but the below is more adaptable (BBDuk)
+Then, removal of human (or anything else) in a second step (BBMap)
 
-#### Adapter trimming (trimmomatic - extra command line options, e.g. quality trimming, will be passed to trimmomatic)
-Edit the *FR* and the sed to the required format
-```shell
-for FR in $PROJECT_FOLDER/data/fastq/*_1.fq.gz; do
-  RR=$(sed 's/_1/_2/' <<< $FR)
-  $PROJECT_FOLDER/metagenomics_pipeline/scripts/PIPELINE.sh -c trim \
-  $FR \
-  $RR \
-  $PROJECT_FOLDER/data/trimmed \
-  $PROJECT_FOLDER/metagenomics_pipeline/common/resources/adapters/truseq.fa \
-  4
-done
-```
-#### Synthetic construct/contaminant filtering (BBduc)
+#### Adapter removal/phix/rRNA removal
+Runs all three of the options in "Filtering full options" shown at bottom
 ```shell
 for FR in $PROJECT_FOLDER/data/trimmed/*_1.fq.gz.trimmed.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
-  $PROJECT_FOLDER/metagenomics_pipeline/scripts/PIPELINE.sh -c filter -p bbduk \
-  $PROJECT_FOLDER/metagenomics_pipeline/common/resources/contaminants/phix_174.fa \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c MEGAFILT \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/adapters/truseq.fa \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/contaminants/phix.fa \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/contaminants/ribokmers.fa.gz \
   $PROJECT_FOLDER/data/filtered \
   $FR \
   $RR \
-  k=31 \
-  hdist=1 \
-  t=4
-done
+  TRIML="ktrim=l k=23 mink=11 hdist=1 tpe tbo t=4" \
+  TRIMR="ktrim=l k=23 mink=11 hdist=1 tpe tbo t=4" \
+  PHIX="k=31 hdist=1 t=4"
+  RRNA="k=31 t=4"
+done  
 ```
-Should remove rRNA as well - could use BBduc or possibly sortmerna. I'll run some test to see which is faster/less errors
-
 
 #### Human contaminant removal (BBMap)
 ```shell
 for FR in $PROJECT_FOLDER/data/filtered/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
-  $PROJECT_FOLDER/metagenomics_pipeline/scripts/PIPELINE.sh -c filter -p bbmap \
-  $PROJECT_FOLDER/metagenomics_pipeline/common/resources/contaminants/bbmap_human \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c filter -p bbmap \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/contaminants/bbmap_human \
   $PROJECT_FOLDER/data/cleaned \
   $FR \
   $RR \
@@ -88,7 +81,7 @@ done
 ```shell
 for FR in $PROJECT_FOLDER/data/cleaned/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz.cleaned.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
-  $PROJECT_FOLDER/metagenomics_pipeline/scripts/PIPELINE.sh -c normalise -p bbnorm \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c normalise -p bbnorm \
   $PROJECT_FOLDER/data/corrected \
   $FR \
   $RR  \
@@ -103,7 +96,7 @@ done
 ```shell
 for FR in $PROJECT_FOLDER/data/corrected/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz.cleaned.fq.gz.corrected.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
-  $PROJECT_FOLDER/metagenomics_pipeline/scripts/PIPELINE.sh -c merge -p bbmerge-auto \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c merge -p bbmerge-auto \
   $PROJECT_FOLDER/data/merged \
   $FR \
   $RR  \
@@ -123,7 +116,7 @@ Metaspades can only run on paired reads (no option to use single and/or merged p
 for FR in $PROJECT_FOLDER/data/corrected/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz.cleaned.fq.gz.corrected.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
   PREFIX=$(grep -Po 'N[0-9]+.' <<<$FR)
-  $PROJECT_FOLDER/metagenomics_pipeline/scripts/PIPELINE.sh -c assemble -p metaspades \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c assemble -p metaspades \
   $PROJECT_FOLDER/data/assembled \
   $FR \
   $RR  \
@@ -146,7 +139,7 @@ for FR in $PROJECT_FOLDER/data/merged/*_1.unmerged.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
   MR=$(sed 's/_1\.un/\./' <<< $FR)
   PREFIX=$(grep -Po 'N[0-9]+.' <<<$FR)
-  $PROJECT_FOLDER/metagenomics_pipeline/scripts/PIPELINE.sh -c assemble -p megahit \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c assemble -p megahit \
   $PROJECT_FOLDER/data/assembled \
   $PREFIX \
   -r $MR,$FR,$RR\
@@ -161,7 +154,7 @@ for FR in $PROJECT_FOLDER/data/corrected/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz.
   RR=$(sed 's/_1/_2/' <<< $FR)
   MR=$(sed 's/_1\.un/\./' <<< $FR)
   PREFIX=$(grep -Po 'N[0-9]+.' <<<$FR)
-  $PROJECT_FOLDER/metagenomics_pipeline/scripts/PIPELINE.sh -c assemble -p megahit \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c assemble -p megahit \
   $PROJECT_FOLDER/data/assembled \
   $PREFIX \
  -1 $FR -2 $RR -r $MR \
@@ -178,3 +171,79 @@ Metakallisto/kracken/centrifuge?
 
 
 ## 
+
+
+### Filtering full options
+Remove 3' adapters
+```shell
+for FR in $PROJECT_FOLDER/data/trimmed/*_1.fq.gz.trimmed.fq.gz; do
+  RR=$(sed 's/_1/_2/' <<< $FR)
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c filter -p bbduk \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/adapters/truseq.fa \
+  $PROJECT_FOLDER/data/filtered \
+  $FR \
+  $RR \
+  ktrim=r \
+  k=23 \
+  mink=11 \
+  hdist=1 \
+  tpe \
+  tbo \
+  t=4
+done
+```
+Remove 5' adapters
+```shell
+for FR in $PROJECT_FOLDER/data/trimmed/*_1.fq.gz.trimmed.fq.gz; do
+  RR=$(sed 's/_1/_2/' <<< $FR)
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c filter -p bbduk \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/adapters/truseq.fa \
+  $PROJECT_FOLDER/data/filtered \
+  $FR \
+  $RR \
+  ktrim=l \
+  k=23 \
+  mink=11 \
+  hdist=1 \
+  tpe \
+  tbo \
+  t=4
+done
+```
+
+phix removal
+```shell
+cd $PROJECT_FOLDER/data/filtered
+rename 
+
+for FR in $PROJECT_FOLDER/data/trimmed/*_1.fq.gz.trimmed.fq.gz; do
+  RR=$(sed 's/_1/_2/' <<< $FR)
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c filter -p bbduk \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/contaminants/phix.fa \
+  $PROJECT_FOLDER/data/filtered \
+  $FR \
+  $RR \
+  k=31 \
+  hdist=1 \
+  t=4
+done
+```
+
+rRNA removal 
+The author of BBTools has produced a kmer file from the full silva database (https://drive.google.com/file/d/0B3llHR93L14wS2NqRXpXakhFaEk/view)
+I've tested this against SortMeRNA performance; 500,000 interleaved (uncompressed) PE fastq file
+
+SortMeRNA runtime 7 - 9 minutes 32.79% rRNA
+BBDUK runtime 7 - 9 *seconds* 31.42% rRNA
+```shell
+for FR in $PROJECT_FOLDER/data/trimmed/*_1.fq.gz.trimmed.fq.gz; do
+  RR=$(sed 's/_1/_2/' <<< $FR)
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c filter -p bbduk \
+  $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/contaminants/ribokmers.fa.gz \
+  $PROJECT_FOLDER/data/filtered \
+  $FR \
+  $RR \
+  k=31 \
+  t=4
+done
+```
