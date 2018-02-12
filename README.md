@@ -52,7 +52,7 @@ for FR in $PROJECT_FOLDER/data/trimmed/*_1.fq.gz.trimmed.fq.gz; do
   $FR \
   $RR \
   TRIML="ktrim=l k=23 mink=11 hdist=1 tpe tbo t=4" \
-  TRIMR="ktrim=l k=23 mink=11 hdist=1 tpe tbo t=4" \
+  TRIMR="ktrim=r k=23 mink=11 hdist=1 tpe tbo t=4" \
   PHIX="k=31 hdist=1 t=4"
   RRNA="k=31 t=4"
 done  
