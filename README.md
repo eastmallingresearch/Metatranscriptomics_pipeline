@@ -97,7 +97,7 @@ done
 ```
 
 ### Paired read merge (BBMerge)
-This is memory hungry (maximum of two concurrent jobs on blacklace11, even then some may fail - single jobs will run successfully). Can set the memory requirements with the Java -Xmx flag to say 150G.
+This is memory hungry (maximum of two concurrent jobs on blacklace11, even then some may fail - single jobs will run successfully). Can set the memory requirements with the Java -Xmx flag to say 150G, and/or set the flags prealloc=t prefilter=t (one job may run one blacklace01 with these set).
 ```shell
 for FR in $PROJECT_FOLDER/data/corrected/*_1.fq.gz.filtered.fq.gz.cleaned.fq.gz.corrected.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
