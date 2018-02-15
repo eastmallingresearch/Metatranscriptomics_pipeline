@@ -35,14 +35,14 @@ mkdir $PROJECT_FOLDER/data/merged
 ```
 
 ### Adapter removal/quality filtering and contaminant filtering
-BBTools has good options for going all of this. SortMeRNA could also be used for rRNA filtering and it classifies more sequences as rRNA, but it is orders of magnitude slower.  
+BBTools has good options for doing all of this. SortMeRNA could also be used for rRNA filtering and it classifies more sequences as rRNA, but it is orders of magnitude slower.  
 
 I've merged adapter removal, phix filtering and rRNA removal into a single operation using BBDuk (though it has to run multiple times, rather than a single passthrough). To modify any settings will require editing the mega_duk.sh script. Alternatively the three operations can be run seperately using bbduk (PIPELINE.sc -c bbduk)
 
 #### Adapter removal/phix/rRNA removal
 Runs all three of the options in "Filtering full options" shown at bottom
 ```shell
-for FR in $PROJECT_FOLDER/data/trimmed/*_1.fq.gz.trimmed.fq.gz; do
+for FR in $PROJECT_FOLDER/data/trimmed/*_1.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
   $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c MEGAFILT \
   $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/adapters/truseq.fa \
@@ -61,7 +61,7 @@ rRNA filtering; k=31 t=4
 
 ##### Human contaminant removal (BBMap)
 ```shell
-for FR in $PROJECT_FOLDER/data/filtered/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz; do
+for FR in $PROJECT_FOLDER/data/filtered/*_1.fq.gz.filtered.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
   $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c filter -p bbmap \
   $PROJECT_FOLDER/metatranscriptomics_pipeline/common/resources/contaminants/bbmap_human \
@@ -81,7 +81,7 @@ done
 
 ### Normalization and error correction (BBNorm)
 ```shell
-for FR in $PROJECT_FOLDER/data/cleaned/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz.cleaned.fq.gz; do
+for FR in $PROJECT_FOLDER/data/cleaned/*_1.fq.gz.filtered.fq.gz.cleaned.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
   $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c normalise -p bbnorm \
   $PROJECT_FOLDER/data/corrected \
@@ -97,7 +97,7 @@ done
 
 ### Paired read merge (BBMerge)
 ```shell
-for FR in $PROJECT_FOLDER/data/corrected/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz.cleaned.fq.gz.corrected.fq.gz; do
+for FR in $PROJECT_FOLDER/data/corrected/*_1.fq.gz.filtered.fq.gz.cleaned.fq.gz.corrected.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
   $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c merge -p bbmerge-auto \
   $PROJECT_FOLDER/data/merged \
@@ -110,13 +110,19 @@ for FR in $PROJECT_FOLDER/data/corrected/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz.
 done
 ```
 
+### rename files (o.k this could have been implemented in each of the above scripts - maybe at some time)
+```shell
+find $PROJECT_FOLDER/data -type f -n *.fq.gz|rename 's/(.*_[12]).*(\.[a-zA-Z]+\.fq\.gz$)/$1$2/'
+```
+
+
 ## Assembly
 There are less assemblers dedicated to MT than MG data - megahit can be used with a small tweek to prevent bubble merger
 
 ### metaspades
 Metaspades can only run on paired reads (no option to use single and/or merged pairs, or multiple libraries)
 ```shell
-for FR in $PROJECT_FOLDER/data/corrected/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz.cleaned.fq.gz.corrected.fq.gz; do
+for FR in $PROJECT_FOLDER/data/corrected/*_1.corrected.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
   PREFIX=$(grep -Po 'N[0-9]+.' <<<$FR)
   $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c assemble -p metaspades \
@@ -153,7 +159,7 @@ done
 
 ```shell
 # using unmerged reads
-for FR in $PROJECT_FOLDER/data/corrected/*_1.fq.gz.trimmed.fq.gz.filtered.fq.gz.cleaned.fq.gz.corrected.fq.gz; do
+for FR in $PROJECT_FOLDER/data/corrected/*_1.corrected.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
   MR=$(sed 's/_1\.un/\./' <<< $FR)
   PREFIX=$(grep -Po 'N[0-9]+.' <<<$FR)
