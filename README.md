@@ -114,7 +114,7 @@ done
 
 ### rename files (o.k this could have been implemented in each of the above scripts - maybe at some time)
 ```shell
-find $PROJECT_FOLDER/data -type f -n *.fq.gz|rename 's/(.*_[12]).*(\.[a-zA-Z]+\.fq\.gz$)/$1$2/'
+find $PROJECT_FOLDER/data -type f -name *.fq.gz|rename 's/(.*_[12]).*(\.[a-zA-Z]+\.fq\.gz$)/$1$2/'
 ```
 
 ## Assembly
