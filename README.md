@@ -80,6 +80,7 @@ done
 ```
 
 ### Normalization and error correction (BBNorm)
+Error correction is probably not necessary with Megahit (or doesn't improve the assemblies).
 ```shell
 for FR in $PROJECT_FOLDER/data/cleaned/*_1.fq.gz.filtered.fq.gz.cleaned.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
@@ -96,6 +97,7 @@ done
 ```
 
 ### Paired read merge (BBMerge)
+This is memory hungry (maximum of two concurrent jobs on blacklace11, even then some may fail - single jobs will run successfully). Can set the memory requirements with the Java -Xmx flag to say 150G.
 ```shell
 for FR in $PROJECT_FOLDER/data/corrected/*_1.fq.gz.filtered.fq.gz.cleaned.fq.gz.corrected.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
@@ -114,7 +116,6 @@ done
 ```shell
 find $PROJECT_FOLDER/data -type f -n *.fq.gz|rename 's/(.*_[12]).*(\.[a-zA-Z]+\.fq\.gz$)/$1$2/'
 ```
-
 
 ## Assembly
 There are less assemblers dedicated to MT than MG data - megahit can be used with a small tweek to prevent bubble merger
