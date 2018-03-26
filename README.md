@@ -153,7 +153,7 @@ for FR in $PROJECT_FOLDER/data/merged/*_1.unmerged.fq.gz; do
   $PROJECT_FOLDER/data/assembled \
   $PREFIX \
   -r $MR,$FR,$RR\
-  -k-min=27 --k-step 10 --k-max 127
+  -k-min=27 --k-step 10 --k-max 127 \
   --bubble-level 0
 done
 ```
@@ -168,7 +168,7 @@ for FR in $PROJECT_FOLDER/data/corrected/*_1.corrected.fq.gz; do
   $PROJECT_FOLDER/data/assembled \
   $PREFIX \
  -1 $FR -2 $RR -r $MR \
- -k-min=27 --k-step 10 --k-max 127
+ --k-min=27 --k-step 10 --k-max 127 \
  --bubble-level 0
 done
 ```   
