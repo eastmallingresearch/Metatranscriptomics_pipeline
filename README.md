@@ -152,7 +152,7 @@ for FR in $PROJECT_FOLDER/data/merged/*_1.unmerged.fq.gz; do
   $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c assemble -p megahit \
   $PROJECT_FOLDER/data/assembled \
   $PREFIX \
-  -r $MR,$FR,$RR\
+  -r $MR,$FR,$RR \
   -k-min=27 --k-step 10 --k-max 127 \
   --bubble-level 0
 done
@@ -162,12 +162,11 @@ done
 # using unmerged reads
 for FR in $PROJECT_FOLDER/data/corrected/*_1.corrected.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
-  MR=$(sed 's/_1\.un/\./' <<< $FR)
   PREFIX=$(grep -Po 'N[0-9]+.' <<<$FR)
   $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c assemble -p megahit \
   $PROJECT_FOLDER/data/assembled \
   $PREFIX \
- -1 $FR -2 $RR -r $MR \
+ -1 $FR -2 $RR \
  --k-min=27 --k-step 10 --k-max 127 \
  --bubble-level 0
 done
