@@ -125,7 +125,7 @@ Metaspades can only run on paired reads (no option to use single and/or merged p
 ```shell
 for FR in $PROJECT_FOLDER/data/corrected/*_1.corrected.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
-  PREFIX=$(grep -Po 'N[0-9]+.' <<<$FR)
+  PREFIX=$(grep -Po 'M[0-9]+.' <<<$FR) #t his line is specific to the file naming convention
   $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c assemble -p metaspades \
   $PROJECT_FOLDER/data/assembled \
   $FR \
