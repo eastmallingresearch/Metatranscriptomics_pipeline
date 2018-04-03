@@ -173,19 +173,24 @@ done
 ```   
 ### extract unmapped reads (BBmap/pileup) - and test assembly quality
 Probably best to index assemblies on the fly
+Also assembly can't be compressed
 
 Output will be mapped as unclean and unmapped as cleaned
 ```shell
 for FR in $PROJECT_FOLDER/data/cleaned/*_1.cleaned.fq.gz; do
   RR=$(sed 's/_1/_2/' <<< $FR)
+  PREFIX=$(grep -Po 'M[0-9]+.' <<<$FR)
   $PROJECT_FOLDER/metatranscriptomics_pipeline/scripts/PIPELINE.sh -c filter -p bbmap \
   $PROJECT_FOLDER/data/assembled/<path_to_assembly> \
   $PROJECT_FOLDER/data/assembly_checks \
   $FR \
   $RR \
+  nodisk=t \
   kfilter=22 \
   subfilter=15 \
-  maxindel=80 
+  maxindel=80 \
+  unpigz=t \
+  touppercase=t \
   t=8
 done
 
